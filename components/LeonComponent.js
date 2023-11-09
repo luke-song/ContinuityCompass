@@ -1,3 +1,5 @@
+//Leon font drawing animation 
+
 import { useEffect, useRef } from 'react';
 import { TweenMax, Power4 } from 'gsap';
 import LeonSans from '@nindaff/leonsans';
@@ -8,8 +10,8 @@ const LeonComponent = () => {
   const isMobile = useMediaQuery({ query: '(max-width: 400px)' });
 
   useEffect(() => {
-    const sw = isMobile ? 300 : 1200;
-    const sh = isMobile ? 100 : 300;
+    const sw = isMobile ? 400 : 1200;
+    const sh = isMobile ? 300 : 300;
     const pixelRatio = 2;
 
     const canvas = canvasRef.current;
@@ -22,7 +24,7 @@ const LeonComponent = () => {
     ctx.scale(pixelRatio, pixelRatio);
 
     const leon = new LeonSans({
-      text: isMobile ? 'C.C v0.1' : 'Continuity Compass v0.1',
+      text: isMobile ? 'Continuity\nCompass v0.1' : 'Continuity Compass v0.1',
       color: ['#FFFFFF'],
       size: isMobile ? 40 : 80,
       weight: 200,

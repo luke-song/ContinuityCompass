@@ -1,3 +1,5 @@
+//Toggle Report Option 
+
 export default function TabToggle({
   activeTab,
   onReadabilityTabClick,
