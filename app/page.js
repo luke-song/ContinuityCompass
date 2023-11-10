@@ -28,6 +28,7 @@ import {
 import GradientBackground from '../components/GradientBackground';
 import LeonComponent from '@/components/LeonComponent';
 import TabToggle from '@/components/TabToggle';
+import CSV from '@/components/csv';
 
 //Imoorting MUI chart, react-pdf, media-query
 import { BarChart } from '@mui/x-charts/BarChart';
@@ -264,6 +265,7 @@ export default function Home() {
     <GradientBackground>
       {/* Uses Flex to center the items and display them as column */}
       <div className="flex items-center justify-center flex-col">
+      <CSV />
         <LeonComponent />
         {/* Search bar gets loaded when the leon component is loaded*/}
         {leonLoaded && (
