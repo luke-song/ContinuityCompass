@@ -17,7 +17,17 @@ function CSV() {
     <div>
       <input type="text" value={url} onChange={e => setUrl(e.target.value)} />
       <button onClick={fetchData}>Send URL</button>
-      {data && <p>{data.Hello}</p>}
+      {data && data.FleschData.map((item, index) => (
+  <table key={index}>
+    <tr>
+      <td>{item.TotalWords}</td>
+      <td>{item.TotalSentences}</td>
+      <td>{item.TotalSyllables}</td>
+      <td>{item.FleschReadingEase}</td>
+      <td>{item.FleschGradeLevel}</td>
+    </tr>
+  </table>
+))}
     </div>
   );
 }
