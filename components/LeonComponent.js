@@ -7,7 +7,7 @@ import { useMediaQuery } from 'react-responsive';
 
 const LeonComponent = () => {
   const canvasRef = useRef(null);
-  const isMobile = useMediaQuery({ query: '(max-width: 400px)' });
+  const isMobile = useMediaQuery({ query: '(max-width: 405px)' });
 
   useEffect(() => {
     const sw = isMobile ? 400 : 1200;

@@ -4,6 +4,7 @@ export default function TabToggle({
   activeTab,
   onReadabilityTabClick,
   onAccessibilityTabClick,
+  onContinuityTabClick,
 }) {
   return (
     <div className="bg-black rounded-full p-1 flex">
@@ -23,14 +24,14 @@ export default function TabToggle({
       >
         Readability
       </button>
-      {/* <button
-        onClick={() => setActiveTab('none')}
+      <button
+        onClick={onContinuityTabClick}
         className={`flex-1 text-center rounded-full py-2 px-4 ${
-          activeTab === 'none' ? 'bg-gray-500 text-white' : 'bg-black'
+          activeTab === 'continuity' ? 'bg-gray-500 text-white' : 'bg-black'
         }`}
       >
-        None
-      </button> */}
+        Continuity
+      </button>
     </div>
   );
 }

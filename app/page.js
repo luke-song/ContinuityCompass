@@ -28,115 +28,15 @@ import {
 import GradientBackground from '../components/GradientBackground';
 import LeonComponent from '@/components/LeonComponent';
 import TabToggle from '@/components/TabToggle';
-import CSV from '@/components/csv';
 
 //Imoorting MUI chart, react-pdf, media-query
 import { BarChart } from '@mui/x-charts/BarChart';
 import { usePDF } from 'react-to-pdf';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import axios from 'axios';
+import isUrl from 'is-url';
 
-//Sample Data
-const AccessibilityData = [
-  {
-    htmlElements: 13,
-    cssElements: 32,
-    score: 24.02,
-  },
-  {
-    htmlElements: 21,
-    cssElements: 31,
-    score: 23.09,
-  },
-  {
-    htmlElements: 35,
-    cssElements: 42,
-    score: 25.23,
-  },
-];
-
-const ReadabilityData = [
-  {
-    htmlElements: 13,
-    cssElements: 32,
-    images: 5,
-    links: 20,
-    forms: 8,
-    headings: 3,
-    videos: 2,
-    score: 24.02,
-  },
-  {
-    htmlElements: 21,
-    cssElements: 32,
-    images: 8,
-    links: 25,
-    forms: 12,
-    headings: 5,
-    videos: 3,
-    score: 23.09,
-  },
-  {
-    htmlElements: 35,
-    cssElements: 42,
-    images: 12,
-    links: 30,
-    forms: 15,
-    headings: 8,
-    videos: 5,
-    score: 25.23,
-  },
-  {
-    htmlElements: 18,
-    cssElements: 28,
-    images: 6,
-    links: 18,
-    forms: 6,
-    headings: 4,
-    videos: 1,
-    score: 22.15,
-  },
-  {
-    htmlElements: 25,
-    cssElements: 38,
-    images: 10,
-    links: 28,
-    forms: 10,
-    headings: 6,
-    videos: 4,
-    score: 21.87,
-  },
-  {
-    htmlElements: 30,
-    cssElements: 45,
-    images: 15,
-    links: 35,
-    forms: 18,
-    headings: 10,
-    videos: 6,
-    score: 26.45,
-  },
-  {
-    htmlElements: 16,
-    cssElements: 24,
-    images: 4,
-    links: 16,
-    forms: 4,
-    headings: 2,
-    videos: 1,
-    score: 20.55,
-  },
-  {
-    htmlElements: 23,
-    cssElements: 36,
-    images: 9,
-    links: 23,
-    forms: 9,
-    headings: 5,
-    videos: 3,
-    score: 19.78,
-  },
-];
-
+//sample data
 const chartData = [
   { year: 2014, population: 7295.290765 },
   { year: 2015, population: 7379.797139 },
@@ -148,6 +48,11 @@ const chartData = [
 
 //Main Page
 export default function Home() {
+  const [error, setError] = useState(null);
+
+  const [continuityTableVisible, setContinuityTableVisible] = useState(false);
+
+  const [data, setData] = useState(null);
   /**
    * The React State Hook to preserve visibility of the Chart
    *
@@ -216,8 +121,8 @@ export default function Home() {
   //using usePDF hook to export the specified div
   const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
 
-  //add mobile responsiveness
-  const matches = useMediaQuery('(min-width:600px)');
+//   //add mobile responsiveness
+//   const matches = useMediaQuery('(min-width:600px)');
 
   //use useSpring hook to add translate animation
   const props = useSpring({
@@ -235,11 +140,34 @@ export default function Home() {
   //listens to the submit event and shows the table when the url is submitted.
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!isUrl(url)) {
+      setError('Please enter a valid URL.');
+      return;
+    }
+
+    setError(null); // clear any previous error
+
+    const fetchData = () => {
+      axios
+        .post('http://localhost:8000/', {
+          url: url,
+        })
+        .then((response) => {
+          setData(response.data);
+          setTableVisible(true);
+          setActiveTab('accessibility');
+          setAccessibilityTableVisible(true); // show accessibility table
+          setReadabilityTableVisible(false); // hide readability table
+          setContinuityTableVisible(false); // hide readability table
+        })
+        .catch((error) => {
+          console.error(`Error: ${error}`);
+          setError('An error occurred while fetching data.');
+        });
+    };
     setSubmitted(true);
-    setTableVisible(true);
-    setActiveTab('accessibility');
-    setAccessibilityTableVisible(true); // show accessibility table
-    setReadabilityTableVisible(false); // hide readability table
+    fetchData();
   };
 
   //toggle readability Tab
@@ -247,6 +175,7 @@ export default function Home() {
     setActiveTab('readability');
     setReadabilityTableVisible(true);
     setAccessibilityTableVisible(false);
+    setContinuityTableVisible(false);
   };
 
   //toggle accessibility Tab
@@ -254,6 +183,14 @@ export default function Home() {
     setActiveTab('accessibility');
     setAccessibilityTableVisible(true);
     setReadabilityTableVisible(false);
+    setContinuityTableVisible(false);
+  };
+
+  const handleContinuityTabClick = () => {
+    setActiveTab('continuity');
+    setContinuityTableVisible(true);
+    setReadabilityTableVisible(false);
+    setAccessibilityTableVisible(false);
   };
 
   //displays the chart
@@ -265,7 +202,6 @@ export default function Home() {
     <GradientBackground>
       {/* Uses Flex to center the items and display them as column */}
       <div className="flex items-center justify-center flex-col">
-      <CSV />
         <LeonComponent />
         {/* Search bar gets loaded when the leon component is loaded*/}
         {leonLoaded && (
@@ -309,77 +245,110 @@ export default function Home() {
                   </Button>
                 </form>
               </div>
+              {error && <p className="text-red-500">{error}</p>}
               {/* renders table when the url is submitted and initially show accessibility table*/}
               {submitted && tableVisible && (
                 <CardContent>
                   {accessibilityTableVisible && (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>HTML elements</TableHead>
-                          <TableHead>CSS elements</TableHead>
-                          <TableHead>Score</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      {/* accessibilityData */}
-                      <TableBody>
-                        {AccessibilityData.map((data, index) => (
-                          <TableRow key={index}>
-                            <TableCell className="font-medium">
-                              {data.htmlElements}
-                            </TableCell>
-                            <TableCell>{data.cssElements}</TableCell>
-                            <TableCell>{data.score}</TableCell>
+                    <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '700px' }}>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>URL</TableHead>
+                            <TableHead>Total Non-Text Content</TableHead>
+                            <TableHead>Total ARIA Non-Text Content</TableHead>
+                            <TableHead>Element Counts</TableHead>
+                            <TableHead>Alt Attr On Img Total</TableHead>
+                            <TableHead>Img Elements</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableHeader>
+                        {/* accessibilityData */}
+                        <TableBody>
+                          {data &&
+                            data.AccessibilityData.map((item, index) => (
+                              <TableRow key={index}>
+                                <TableCell className="font-medium">
+                                  {item.URL}
+                                </TableCell>
+                                <TableCell>{item.TotalNonTextContent}</TableCell>
+                                <TableCell>{item.TotalARIANonTextContent}</TableCell>
+                                <TableCell>{item.ElementCounts}</TableCell>
+                                <TableCell>{item.AltAttrOnImgTotal}</TableCell>
+                                <TableCell>{item.ImgElements}</TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   )}
                   {/* when readability button is toggled, shows readability table */}
                   {readabilityTableVisible && (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>HTML elements</TableHead>
-                          <TableHead>CSS elements</TableHead>
-                          {matches && (
-                            <>
-                              <TableHead>Images</TableHead>
-                              <TableHead>Links</TableHead>
-                              <TableHead>Forms</TableHead>
-                              <TableHead>Headings</TableHead>
-                              <TableHead>Videos</TableHead>
-                            </>
-                          )}
-                          <TableHead>Score</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      {/* readability Data */}
-                      <TableBody>
-                        {ReadabilityData.map((data, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{data.htmlElements}</TableCell>
-                            <TableCell>{data.cssElements}</TableCell>
-                            {matches && (
-                              <>
-                                <TableCell>{data.images}</TableCell>
-                                <TableCell>{data.links}</TableCell>
-                                <TableCell>{data.forms}</TableCell>
-                                <TableCell>{data.headings}</TableCell>
-                                <TableCell>{data.videos}</TableCell>
-                              </>
-                            )}
-                            <TableCell>{data.score}</TableCell>
+                    <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '700px' }}>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                          <TableHead>TotalWords</TableHead>
+                            <TableHead>TotalSentences</TableHead>
+                            <TableHead>TotalSyllable</TableHead>
+                            <TableHead>FleschReadingEase</TableHead>
+                            <TableHead>FleschGradeLevel</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableHeader>
+                        {/* readability Data */}
+                        <TableBody>
+                        {data &&
+                            data.FleschData.map((data, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">
+                                  {item.TotalWords}
+                                </TableCell>
+                                <TableCell>{item.TotalSentences}</TableCell>
+                                <TableCell>{item.TotalSyllables}</TableCell>
+                                <TableCell>{item.FleschReadingEase}</TableCell>
+                                <TableCell>{item.FleschGradeLevel}</TableCell>
+                              </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                  {/* when continuity button is toggled, shows continuity table */}
+                  {continuityTableVisible && (
+                    <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '700px' }}>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>TotalHTMLElements</TableHead>
+                            <TableHead>TotalCSSElements</TableHead>
+                            <TableHead>USWDSPresent</TableHead>
+                            <TableHead>USWDSTotal</TableHead>
+                            <TableHead>PageDepth</TableHead>
+                            <TableHead>USWDSPercent</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        {/* Continuity Data */}
+                        <TableBody>
+                        {data &&
+                            data.ContinuityData.map((item, index) => (
+                            <TableRow key={index}>
+                              <TableCell>{item.TotalHTMLElements}</TableCell>
+                              <TableCell>{item.TotalCSSElements}</TableCell>
+                              <TableCell>{item.USWDSPresent}</TableCell>
+                              <TableCell>{item.USWDSTotal}</TableCell>
+                              <TableCell>{item.PageDepth}</TableCell>
+                              <TableCell>{item.USWDSPercent}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   )}
                   {/* Option Toggle bar */}
                   <TabToggle
                     activeTab={activeTab}
                     onReadabilityTabClick={handleReadabilityTabClick}
                     onAccessibilityTabClick={handleAccessibilityTabClick}
+                    onContinuityTabClick={handleContinuityTabClick} // Add this line
                   />
                 </CardContent>
               )}
@@ -388,7 +357,7 @@ export default function Home() {
         )}
         <div>
           {/* when the table is displayed, enable run report */}
-          {(accessibilityTableVisible || readabilityTableVisible) && (
+          {(accessibilityTableVisible || readabilityTableVisible || continuityTableVisible) && (
             <button
               type="button"
               className="px-4 py-3 bg-black rounded-md text-white outline-none focus:ring-4 shadow-lg transform active:scale-75 transition-transform border border-white"
