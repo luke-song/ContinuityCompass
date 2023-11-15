@@ -28,17 +28,22 @@ import {
 import GradientBackground from '../components/GradientBackground';
 import LeonComponent from '@/components/LeonComponent';
 import TabToggle from '@/components/TabToggle';
+import D3CircleChart from '@/components/D3CircleChart';
 
 //Imoorting MUI chart, react-pdf, media-query, axios, isURL, React-Loader
-import { BarChart } from '@mui/x-charts/BarChart';
+import { BarChart, PieChart } from '@mui/x-charts';
 import { usePDF } from 'react-to-pdf';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import axios from 'axios';
 import isUrl from 'is-url';
 import { ThreeDots } from  'react-loader-spinner'
 
+
 //Main Page
 export default function Home() {
+
+const [avgFleschReadingEase, setAvgFleschReadingEase] = useState(0);
+const [avgFleschGradeLevel, setAvgFleschGradeLevel] = useState(0);
 
   /**
    * The React State Hook to preserve loading state
@@ -220,6 +225,14 @@ export default function Home() {
   //displays the chart
   const handleRunReportClick = () => {
     setBlackBoxVisible(true);
+
+    let totalFleschReadingEase = data.FleschData.reduce((total, item) => total + item.FleschReadingEase, 0);
+    let avgFleschReadingEase = totalFleschReadingEase / data.FleschData.length;
+    setAvgFleschReadingEase(avgFleschReadingEase);
+  
+    let totalFleschGradeLevel = data.FleschData.reduce((total, item) => total + item.FleschGradeLevel, 0);
+    let avgFleschGradeLevel = totalFleschGradeLevel / data.FleschData.length;
+    setAvgFleschGradeLevel(avgFleschGradeLevel);
   };
 
   return (
@@ -291,7 +304,6 @@ visible={true}
                             <TableHead>URL</TableHead>
                             <TableHead>Total Non-Text Content</TableHead>
                             <TableHead>Total ARIA Non-Text Content</TableHead>
-                            <TableHead>Element Counts</TableHead>
                             <TableHead>iframe</TableHead>
                             <TableHead>img</TableHead>
                             <TableHead>button</TableHead>
@@ -301,25 +313,25 @@ visible={true}
                         </TableHeader>
                         {/* accessibilityData */}
                         <TableBody>
-  {data && (
-    <TableRow>
-      <TableCell className="font-medium">
-        {data.AccessibilityData.URL}
-      </TableCell>
-      <TableCell>{data.AccessibilityData.TotalNonTextContent}</TableCell>
-      <TableCell>{data.AccessibilityData.TotalARIANonTextContent}</TableCell>
-      <TableCell>
-        {data.AccessibilityData.ElementCounts.iframe}
-      </TableCell>
-      <TableCell>
-        {data.AccessibilityData.ElementCounts.img}
-      </TableCell>
-      <TableCell>
-        {data.AccessibilityData.ElementCounts.button}
-      </TableCell>
-    </TableRow>
-  )}
-</TableBody>
+                        {data && (
+                            <TableRow>
+                            <TableCell className="font-medium">
+                                {data.AccessibilityData.URL}
+                            </TableCell>
+                            <TableCell>{data.AccessibilityData.TotalNonTextContent}</TableCell>
+                            <TableCell>{data.AccessibilityData.TotalARIANonTextContent}</TableCell>
+                            <TableCell>
+                                {data.AccessibilityData.ElementCounts.iframe}
+                            </TableCell>
+                            <TableCell>
+                                {data.AccessibilityData.ElementCounts.img}
+                            </TableCell>
+                            <TableCell>
+                                {data.AccessibilityData.ElementCounts.button}
+                            </TableCell>
+                            </TableRow>
+                        )}
+                        </TableBody>
                       </Table>
                     </div>
                   )}
@@ -380,7 +392,7 @@ visible={true}
                         </TableHeader>
                         {/* Continuity Data */}
                         <TableBody>
-                          {data && (
+                        {data && data.ContinuityData ? (
                             <TableRow>
                                 <TableCell>{data.ContinuityData.FullURL}</TableCell>
                               <TableCell>{data.ContinuityData.TotalHTMLElements}</TableCell>
@@ -389,6 +401,10 @@ visible={true}
                               <TableCell>{data.ContinuityData.USWDSTotal}</TableCell>
                               <TableCell>{data.ContinuityData.PageDepth}</TableCell>
                               <TableCell>{data.ContinuityData.USWDSPercent}</TableCell>
+                            </TableRow>
+                          ) : (
+                            <TableRow>
+                                <TableCell colSpan="7">No data available</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -467,23 +483,53 @@ visible={true}
           )}
         </div>
         {isBlackBoxVisible && (
-          <div ref={targetRef}>
+          <div ref={targetRef} className="bg-neutral-100 rounded-md border-2 border-black mt-8 mb-12">
             {/* Chart */}
             <BarChart
               xAxis={[
                 {
                   scaleType: 'band',
-                  data: ['Continuity', 'Accessibility', 'Flesch'],
+                  data: ['Total HTML element', 'Total CSS element', 'USWDS Total', 'Page Depth', 'USWDS Percent'],
                 },
               ]}
               series={[
-                { data: [data.ContinuityData.TotalHTMLElements, data.ContinuityData.TotalCSSElements, data.ContinuityData.USWDSPercent] },
-                { data: [data.AccessibilityData.ElementCounts.iframe, data.AccessibilityData.ElementCounts.img, 0] },
-                { data: [data.FleschData[0].TotalWords, data.FleschData[0].TotalSentences, data.FleschData[0].FleschReadingEase] },
+                { data: [data.ContinuityData.TotalHTMLElements, data.ContinuityData.TotalCSSElements, data.ContinuityData.USWDSTotal, data.ContinuityData.PageDepth, data.ContinuityData.USWDSPercent] }
               ]}
-              width={500}
-              height={300}
+              colors={['#6a0d83']}
+              width={800}
+              height={400}
             />
+            <div style={{ display: 'flex', justifyContent: 'left', marginBottom: '20px' }}>
+              <PieChart
+                series={[
+                  {
+                    data: [
+                      { id: 0, value: avgFleschReadingEase, label: 'Reading Ease' },
+                      { id: 1, value: avgFleschGradeLevel, label: 'Grade Level' },
+                    ],
+                  },
+                ]}
+                colors={['#ee5d6c', '#ce4993']}
+                width={400}
+                height={200}
+              />
+              <PieChart
+                series={[
+                  {
+                    data: [
+                      { id: 0, value: data.AccessibilityData.ElementCounts.iframe, label: 'iframe' },
+                      { id: 1, value: data.AccessibilityData.ElementCounts.img, label: 'img' },
+                      { id: 2, value: data.AccessibilityData.ElementCounts.button, label: 'button' },
+                    ],
+                  },
+                ]}
+                colors={['#eeaf61', '#fb9062','#EE5D6C']}
+                width={300}
+                height={200}
+              />
+            </div>
+
+            {/* <D3CircleChart /> */}
           </div>
         )}
       </div>
