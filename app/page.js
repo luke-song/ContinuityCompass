@@ -483,7 +483,7 @@ visible={true}
           )}
         </div>
         {isBlackBoxVisible && (
-          <div ref={targetRef} className="bg-neutral-100 rounded-md border-2 border-black mt-8 mb-12">
+          <div ref={targetRef} className="bg-neutral-100 bg-opacity-50 rounded-md border-1 border-white mt-8 mb-12">
             {/* Chart */}
             <BarChart
               xAxis={[
