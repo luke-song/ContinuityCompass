@@ -35,6 +35,7 @@ import { usePDF } from 'react-to-pdf';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import axios from 'axios';
 import isUrl from 'is-url';
+import { ThreeDots } from  'react-loader-spinner'
 
 //sample data
 const chartData = [
@@ -48,6 +49,9 @@ const chartData = [
 
 //Main Page
 export default function Home() {
+
+  const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState(null);
 
   const [continuityTableVisible, setContinuityTableVisible] = useState(false);
@@ -140,9 +144,11 @@ export default function Home() {
   //listens to the submit event and shows the table when the url is submitted.
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when data fetching starts
 
     if (!isUrl(url)) {
       setError('Please enter a valid URL.');
+      setLoading(false); 
       return;
     }
 
@@ -164,6 +170,9 @@ export default function Home() {
         .catch((error) => {
           console.error(`Error: ${error}`);
           setError('An error occurred while fetching data.');
+        })
+        .finally(() => {
+            setLoading(false); // Set loading to false when data fetching completes
         });
     };
     setSubmitted(true);
@@ -208,7 +217,7 @@ export default function Home() {
           <animated.div style={props}>
             {/* Search bar */}
             <Card className="mx-10 my-10 w-80.8125rem h-54.3125rem flex-shrink-0 rounded-0.9375rem bg-black shadow-2xl text-white">
-              <div className="flex items-center justify-center p-2 rounded-md w-full md:w-[745px] h-[50px]">
+              <div className="flex items-center justify-center p-2 rounded-md w-auto ">
                 <svg
                   className=" text-white w-6 h-6 mr-2"
                   fill="none"
@@ -246,6 +255,16 @@ export default function Home() {
                 </form>
               </div>
               {error && <p className="text-red-500">{error}</p>}
+              {loading && <div className="flex items-center justify-center"><ThreeDots 
+height="80" 
+width="80" 
+radius="9"
+color="#FFFFFF" 
+ariaLabel="three-dots-loading"
+wrapperStyle={{}}
+wrapperClassName=""
+visible={true}
+ /></div>}
               {/* renders table when the url is submitted and initially show accessibility table*/}
               {submitted && tableVisible && (
                 <CardContent>
