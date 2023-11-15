@@ -29,7 +29,7 @@ import GradientBackground from '../components/GradientBackground';
 import LeonComponent from '@/components/LeonComponent';
 import TabToggle from '@/components/TabToggle';
 
-//Imoorting MUI chart, react-pdf, media-query
+//Imoorting MUI chart, react-pdf, media-query, axios, isURL, React-Loader
 import { BarChart } from '@mui/x-charts/BarChart';
 import { usePDF } from 'react-to-pdf';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -37,26 +37,41 @@ import axios from 'axios';
 import isUrl from 'is-url';
 import { ThreeDots } from  'react-loader-spinner'
 
-//sample data
-const chartData = [
-  { year: 2014, population: 7295.290765 },
-  { year: 2015, population: 7379.797139 },
-  { year: 2016, population: 7464.022049 },
-  { year: 2017, population: 7547.858925 },
-  { year: 2019, population: 7713.4681 },
-  { year: 2020, population: 7794.798739 },
-];
-
 //Main Page
 export default function Home() {
 
+  /**
+   * The React State Hook to preserve loading state
+   *
+   * @param loading The loading state
+   * @function setLoading Sets the loading state
+   */
   const [loading, setLoading] = useState(false);
 
+  /**
+   * The React State Hook to preserve error state
+   *
+   * @param error The error state
+   * @function setError Sets the error state
+   */
   const [error, setError] = useState(null);
 
+  /**
+   * The React State Hook to preserve continuity table visibility
+   *
+   * @param continuityTableVisible The continuity table visibility state
+   * @function setContinuityTableVisible Sets the continuity table visibility
+   */
   const [continuityTableVisible, setContinuityTableVisible] = useState(false);
 
+  /**
+   * The React State Hook to preserve data
+   *
+   * @param data The data state
+   * @function setData Sets the data state
+   */
   const [data, setData] = useState(null);
+
   /**
    * The React State Hook to preserve visibility of the Chart
    *
@@ -217,7 +232,7 @@ export default function Home() {
           <animated.div style={props}>
             {/* Search bar */}
             <Card className="mx-10 my-10 w-80.8125rem h-54.3125rem flex-shrink-0 rounded-0.9375rem bg-black shadow-2xl text-white">
-              <div className="flex items-center justify-center p-2 rounded-md w-auto ">
+              <div className="flex items-center justify-center p-2 rounded-md min-w-[300px] sm:min-w-[750px]">
                 <svg
                   className=" text-white w-6 h-6 mr-2"
                   fill="none"
@@ -238,7 +253,7 @@ export default function Home() {
                   className="flex-grow flex items-center"
                 >
                   <Input
-                    className="bg-black bg-opacity-50 text-[#33ff33] text-lg border-none focus:outline-none flex-grow mx-2 transition-all duration-500 ease-in-out transform placeholder-green-500 focus:placeholder-transparent"
+                    className="bg-black bg-opacity-50 text-[#33ff33] text-lg border-none focus:outline-none flex-1 mx-2 transition-all duration-500 ease-in-out transform placeholder-green-500 focus:placeholder-transparent"
                     placeholder="https://www.enterurl.com/"
                     type="search"
                     value={url}
@@ -277,8 +292,11 @@ visible={true}
                             <TableHead>Total Non-Text Content</TableHead>
                             <TableHead>Total ARIA Non-Text Content</TableHead>
                             <TableHead>Element Counts</TableHead>
-                            <TableHead>Alt Attr On Img Total</TableHead>
-                            <TableHead>Img Elements</TableHead>
+                            <TableHead>iframe</TableHead>
+                            <TableHead>img</TableHead>
+                            <TableHead>button</TableHead>
+                            {/* <TableHead>Alt Attr On Img Total</TableHead>
+                            <TableHead>Img Elements</TableHead> */}
                           </TableRow>
                         </TableHeader>
                         {/* accessibilityData */}
@@ -291,15 +309,13 @@ visible={true}
       <TableCell>{data.AccessibilityData.TotalNonTextContent}</TableCell>
       <TableCell>{data.AccessibilityData.TotalARIANonTextContent}</TableCell>
       <TableCell>
-        {/* Assuming you want to display the counts of iframe, img, and button */}
-        iframe: {data.AccessibilityData.ElementCounts.iframe}, 
-        img: {data.AccessibilityData.ElementCounts.img}, 
-        button: {data.AccessibilityData.ElementCounts.button}
+        {data.AccessibilityData.ElementCounts.iframe}
       </TableCell>
-      <TableCell>{data.AccessibilityData.AltAttrOnImgTotal}</TableCell>
       <TableCell>
-        {/* This will display all image elements. Adjust as needed. */}
-        {data.AccessibilityData.ImgElements.join(", ")}
+        {data.AccessibilityData.ElementCounts.img}
+      </TableCell>
+      <TableCell>
+        {data.AccessibilityData.ElementCounts.button}
       </TableCell>
     </TableRow>
   )}
@@ -313,11 +329,13 @@ visible={true}
                       <Table>
                         <TableHeader>
                           <TableRow>
-                          <TableHead>TotalWords</TableHead>
-                            <TableHead>TotalSentences</TableHead>
-                            <TableHead>TotalSyllable</TableHead>
-                            <TableHead>FleschReadingEase</TableHead>
-                            <TableHead>FleschGradeLevel</TableHead>
+                          <TableHead>URL</TableHead>
+                          <TableHead>Header</TableHead>
+                          <TableHead>Total Words</TableHead>
+                            <TableHead>Total Sentences</TableHead>
+                            <TableHead>Total Syllable</TableHead>
+                            <TableHead>Flesch Reading Ease</TableHead>
+                            <TableHead>Flesch Grade Level</TableHead>
                           </TableRow>
                         </TableHeader>
                         {/* readability Data */}
@@ -325,9 +343,16 @@ visible={true}
                         {data &&
                             data.FleschData.map((item, index) => (
                             <TableRow key={index}>
-                              <TableCell className="font-medium">
+                                <TableCell>
+                                  {item.URL}
+                                </TableCell>
+                                <TableCell>
+                                  {item.Header}
+                                  </TableCell>
+                              <TableCell>
                                   {item.TotalWords}
                                 </TableCell>
+                            
                                 <TableCell>{item.TotalSentences}</TableCell>
                                 <TableCell>{item.TotalSyllables}</TableCell>
                                 <TableCell>{item.FleschReadingEase}</TableCell>
@@ -344,6 +369,7 @@ visible={true}
                       <Table>
                         <TableHeader>
                           <TableRow>
+                            <TableHead>URL</TableHead>
                             <TableHead>TotalHTMLElements</TableHead>
                             <TableHead>TotalCSSElements</TableHead>
                             <TableHead>USWDSPresent</TableHead>
@@ -356,6 +382,7 @@ visible={true}
                         <TableBody>
                           {data && (
                             <TableRow>
+                                <TableCell>{data.ContinuityData.FullURL}</TableCell>
                               <TableCell>{data.ContinuityData.TotalHTMLElements}</TableCell>
                               <TableCell>{data.ContinuityData.TotalCSSElements}</TableCell>
                               <TableCell>{data.ContinuityData.USWDSPresent}</TableCell>
@@ -446,13 +473,13 @@ visible={true}
               xAxis={[
                 {
                   scaleType: 'band',
-                  data: ['HTML elements', 'CSS elements', 'Score'],
+                  data: ['Continuity', 'Accessibility', 'Flesch'],
                 },
               ]}
               series={[
-                { data: [13, 21, 35] },
-                { data: [32, 31, 42] },
-                { data: [24.02, 23.09, 25.23] },
+                { data: [data.ContinuityData.TotalHTMLElements, data.ContinuityData.TotalCSSElements, data.ContinuityData.USWDSPercent] },
+                { data: [data.AccessibilityData.ElementCounts.iframe, data.AccessibilityData.ElementCounts.img, 0] },
+                { data: [data.FleschData[0].TotalWords, data.FleschData[0].TotalSentences, data.FleschData[0].FleschReadingEase] },
               ]}
               width={500}
               height={300}
