@@ -264,20 +264,27 @@ export default function Home() {
                         </TableHeader>
                         {/* accessibilityData */}
                         <TableBody>
-                          {data &&
-                            data.AccessibilityData.map((item, index) => (
-                              <TableRow key={index}>
-                                <TableCell className="font-medium">
-                                  {item.URL}
-                                </TableCell>
-                                <TableCell>{item.TotalNonTextContent}</TableCell>
-                                <TableCell>{item.TotalARIANonTextContent}</TableCell>
-                                <TableCell>{item.ElementCounts}</TableCell>
-                                <TableCell>{item.AltAttrOnImgTotal}</TableCell>
-                                <TableCell>{item.ImgElements}</TableCell>
-                              </TableRow>
-                            ))}
-                        </TableBody>
+  {data && (
+    <TableRow>
+      <TableCell className="font-medium">
+        {data.AccessibilityData.URL}
+      </TableCell>
+      <TableCell>{data.AccessibilityData.TotalNonTextContent}</TableCell>
+      <TableCell>{data.AccessibilityData.TotalARIANonTextContent}</TableCell>
+      <TableCell>
+        {/* Assuming you want to display the counts of iframe, img, and button */}
+        iframe: {data.AccessibilityData.ElementCounts.iframe}, 
+        img: {data.AccessibilityData.ElementCounts.img}, 
+        button: {data.AccessibilityData.ElementCounts.button}
+      </TableCell>
+      <TableCell>{data.AccessibilityData.AltAttrOnImgTotal}</TableCell>
+      <TableCell>
+        {/* This will display all image elements. Adjust as needed. */}
+        {data.AccessibilityData.ImgElements.join(", ")}
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
                       </Table>
                     </div>
                   )}
@@ -297,7 +304,7 @@ export default function Home() {
                         {/* readability Data */}
                         <TableBody>
                         {data &&
-                            data.FleschData.map((data, index) => (
+                            data.FleschData.map((item, index) => (
                             <TableRow key={index}>
                               <TableCell className="font-medium">
                                   {item.TotalWords}
@@ -328,17 +335,16 @@ export default function Home() {
                         </TableHeader>
                         {/* Continuity Data */}
                         <TableBody>
-                        {data &&
-                            data.ContinuityData.map((item, index) => (
-                            <TableRow key={index}>
-                              <TableCell>{item.TotalHTMLElements}</TableCell>
-                              <TableCell>{item.TotalCSSElements}</TableCell>
-                              <TableCell>{item.USWDSPresent}</TableCell>
-                              <TableCell>{item.USWDSTotal}</TableCell>
-                              <TableCell>{item.PageDepth}</TableCell>
-                              <TableCell>{item.USWDSPercent}</TableCell>
+                          {data && (
+                            <TableRow>
+                              <TableCell>{data.ContinuityData.TotalHTMLElements}</TableCell>
+                              <TableCell>{data.ContinuityData.TotalCSSElements}</TableCell>
+                              <TableCell>{data.ContinuityData.USWDSPresent}</TableCell>
+                              <TableCell>{data.ContinuityData.USWDSTotal}</TableCell>
+                              <TableCell>{data.ContinuityData.PageDepth}</TableCell>
+                              <TableCell>{data.ContinuityData.USWDSPercent}</TableCell>
                             </TableRow>
-                          ))}
+                          )}
                         </TableBody>
                       </Table>
                     </div>
