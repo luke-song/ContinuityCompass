@@ -254,8 +254,8 @@ const [avgFleschGradeLevel, setAvgFleschGradeLevel] = useState(0);
         {leonLoaded && (
           <animated.div style={props}>
             {/* Search bar */}
-            <Card className="mx-10 my-10 w-80.8125rem h-54.3125rem flex-shrink-0 rounded-0.9375rem bg-black shadow-2xl text-white">
-              <div className="flex items-center justify-center p-2 rounded-md min-w-[300px] sm:max-w-[750px]">
+            <Card className="mx-10 my-10 w-80.8125rem h-54.3125rem rounded-0.9375rem bg-black shadow-2xl text-white">
+              <div className={`flex items-center justify-center p-2 rounded-md w-full ${tableVisible ? 'w-full' : 'md:w-[745px]'}`}>
                 <svg
                   className=" text-white w-6 h-6 mr-2"
                   fill="none"
@@ -285,7 +285,7 @@ const [avgFleschGradeLevel, setAvgFleschGradeLevel] = useState(0);
                     }}
                   />
                   <Button
-                    className="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded"
+                    className="flex-none ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded"
                     type="submit"
                   >
                     Submit

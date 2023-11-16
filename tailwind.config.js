@@ -17,9 +17,6 @@ module.exports = {
   plugins: [require("tailwindcss-animate")],
   variants: {
     extend: {
-      screens: {
-        sm: '360px',
-      },
     },
   },
 }
