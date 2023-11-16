@@ -387,7 +387,6 @@ visible={true}
                   )}
                   {/* when continuity button is toggled, shows continuity table */}
                   {continuityTableVisible && (
-                    <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '700px' }}>
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -424,7 +423,6 @@ visible={true}
                           )}
                         </TableBody>
                       </Table>
-                    </div>
                   )}
                   {/* Option Toggle bar */}
                   <TabToggle
