@@ -31,12 +31,14 @@ import TabToggle from '@/components/TabToggle';
 import D3CircleChart from '@/components/D3CircleChart';
 
 //Imoorting MUI chart, react-pdf, media-query, axios, isURL, React-Loader
-import { BarChart, PieChart } from '@mui/x-charts';
+import { BarChart, PieChart, axisClasses } from '@mui/x-charts';
 import { usePDF } from 'react-to-pdf';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useMediaQuery as rrUseMediaQuery } from 'react-responsive';
 import axios from 'axios';
 import isUrl from 'is-url';
 import { ThreeDots } from  'react-loader-spinner'
+
 
 
 //Main Page
@@ -146,7 +148,14 @@ const [avgFleschGradeLevel, setAvgFleschGradeLevel] = useState(0);
   const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
 
 //   //add mobile responsiveness
-//   const matches = useMediaQuery('(min-width:600px)');
+  const matches = useMediaQuery('(min-width:600px)');
+
+  const isSmallScreen = rrUseMediaQuery({ maxWidth: 600 });
+
+  const labels = isSmallScreen
+  ? ['HTML', 'CSS', 'Total', 'Depth', '%']
+  : ['Total HTML element', 'Total CSS element', 'USWDS Total', 'Page Depth', 'USWDS Percent'];
+
 
   //use useSpring hook to add translate animation
   const props = useSpring({
@@ -240,12 +249,13 @@ const [avgFleschGradeLevel, setAvgFleschGradeLevel] = useState(0);
       {/* Uses Flex to center the items and display them as column */}
       <div className="flex items-center justify-center flex-col">
         <LeonComponent />
+        <div className="flex items-center justify-center text-white"> Sample URL: https://www.usa.gov </div>
         {/* Search bar gets loaded when the leon component is loaded*/}
         {leonLoaded && (
           <animated.div style={props}>
             {/* Search bar */}
             <Card className="mx-10 my-10 w-80.8125rem h-54.3125rem flex-shrink-0 rounded-0.9375rem bg-black shadow-2xl text-white">
-              <div className="flex items-center justify-center p-2 rounded-md min-w-[300px] sm:min-w-[750px]">
+              <div className="flex items-center justify-center p-2 rounded-md min-w-[300px] sm:max-w-[750px]">
                 <svg
                   className=" text-white w-6 h-6 mr-2"
                   fill="none"
@@ -303,7 +313,7 @@ visible={true}
                           <TableRow>
                             <TableHead>URL</TableHead>
                             <TableHead>Total Non-Text Content</TableHead>
-                            <TableHead>Total ARIA Non-Text Content</TableHead>
+                            {matches && <TableHead>Total ARIA Non-Text Content</TableHead>}
                             <TableHead>iframe</TableHead>
                             <TableHead>img</TableHead>
                             <TableHead>button</TableHead>
@@ -319,7 +329,7 @@ visible={true}
                                 {data.AccessibilityData.URL}
                             </TableCell>
                             <TableCell>{data.AccessibilityData.TotalNonTextContent}</TableCell>
-                            <TableCell>{data.AccessibilityData.TotalARIANonTextContent}</TableCell>
+                            {matches && <TableCell>{data.AccessibilityData.TotalARIANonTextContent}</TableCell> }
                             <TableCell>
                                 {data.AccessibilityData.ElementCounts.iframe}
                             </TableCell>
@@ -342,10 +352,10 @@ visible={true}
                         <TableHeader>
                           <TableRow>
                           <TableHead>URL</TableHead>
-                          <TableHead>Header</TableHead>
-                          <TableHead>Total Words</TableHead>
-                            <TableHead>Total Sentences</TableHead>
-                            <TableHead>Total Syllable</TableHead>
+                          {matches &&<TableHead>Header</TableHead>}
+                          {matches &&<TableHead>Total Words</TableHead>}
+                          {matches &&<TableHead>Total Sentences</TableHead>}
+                          {matches &&<TableHead>Total Syllable</TableHead>}
                             <TableHead>Flesch Reading Ease</TableHead>
                             <TableHead>Flesch Grade Level</TableHead>
                           </TableRow>
@@ -358,15 +368,15 @@ visible={true}
                                 <TableCell>
                                   {item.URL}
                                 </TableCell>
-                                <TableCell>
+                                {matches && <TableCell>
                                   {item.Header}
-                                  </TableCell>
-                              <TableCell>
+                                  </TableCell> }
+                                  {matches &&<TableCell>
                                   {item.TotalWords}
-                                </TableCell>
+                                </TableCell>}
                             
-                                <TableCell>{item.TotalSentences}</TableCell>
-                                <TableCell>{item.TotalSyllables}</TableCell>
+                                {matches &&<TableCell>{item.TotalSentences}</TableCell>}
+                               {matches && <TableCell>{item.TotalSyllables}</TableCell>}
                                 <TableCell>{item.FleschReadingEase}</TableCell>
                                 <TableCell>{item.FleschGradeLevel}</TableCell>
                               </TableRow>
@@ -381,26 +391,31 @@ visible={true}
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>URL</TableHead>
-                            <TableHead>TotalHTMLElements</TableHead>
-                            <TableHead>TotalCSSElements</TableHead>
-                            <TableHead>USWDSPresent</TableHead>
-                            <TableHead>USWDSTotal</TableHead>
-                            <TableHead>PageDepth</TableHead>
-                            <TableHead>USWDSPercent</TableHead>
+                          {matches &&<TableHead>URL</TableHead>}
+                            {matches && <TableHead>TotalHTMLElements</TableHead>}
+                            {!matches && <TableHead>HTML</TableHead>}
+                            {matches &&<TableHead>TotalCSSElements</TableHead>}
+                            {!matches && <TableHead>CSS</TableHead>}
+                            {matches &&<TableHead>USWDSPresent</TableHead> }
+                            {matches &&<TableHead>USWDSTotal</TableHead>}
+                            {!matches && <TableHead>Total</TableHead>}
+                            {matches && <TableHead>PageDepth</TableHead>}
+                            {!matches && <TableHead>Depth</TableHead>}
+                            {matches &&<TableHead>USWDSPercent</TableHead>}
+                            {!matches && <TableHead>Percent</TableHead>}
                           </TableRow>
                         </TableHeader>
                         {/* Continuity Data */}
                         <TableBody>
                         {data && data.ContinuityData ? (
                             <TableRow>
-                                <TableCell>{data.ContinuityData.FullURL}</TableCell>
+                                {matches &&<TableCell>{data.ContinuityData.FullURL}</TableCell>}
                               <TableCell>{data.ContinuityData.TotalHTMLElements}</TableCell>
                               <TableCell>{data.ContinuityData.TotalCSSElements}</TableCell>
-                              <TableCell>{data.ContinuityData.USWDSPresent}</TableCell>
+                              {matches && <TableCell>{data.ContinuityData.USWDSPresent}</TableCell> }
                               <TableCell>{data.ContinuityData.USWDSTotal}</TableCell>
                               <TableCell>{data.ContinuityData.PageDepth}</TableCell>
-                              <TableCell>{data.ContinuityData.USWDSPercent}</TableCell>
+                              <TableCell>{Math.ceil(data.ContinuityData.USWDSPercent * 100) / 100}</TableCell>
                             </TableRow>
                           ) : (
                             <TableRow>
@@ -483,35 +498,84 @@ visible={true}
           )}
         </div>
         {isBlackBoxVisible && (
-          <div ref={targetRef} className="bg-neutral-100 bg-opacity-50 rounded-md border-1 border-white mt-8 mb-12">
+          <div ref={targetRef} className="bg-black rounded-md border-white border mt-8 mb-12">
             {/* Chart */}
-            <BarChart
-              xAxis={[
-                {
-                  scaleType: 'band',
-                  data: ['Total HTML element', 'Total CSS element', 'USWDS Total', 'Page Depth', 'USWDS Percent'],
-                },
-              ]}
-              series={[
-                { data: [data.ContinuityData.TotalHTMLElements, data.ContinuityData.TotalCSSElements, data.ContinuityData.USWDSTotal, data.ContinuityData.PageDepth, data.ContinuityData.USWDSPercent] }
-              ]}
-              colors={['#6a0d83']}
-              width={800}
-              height={400}
-            />
-            <div style={{ display: 'flex', justifyContent: 'left', marginBottom: '20px' }}>
+            
+            {data.ContinuityData && (
+              <BarChart
+                xAxis={[
+                    {
+                        
+                        scaleType: 'band',
+                        data: labels,
+                        tickLabelStyle: {
+                          fill: 'white' // Set the tick label color to white
+                        },
+                    
+                        
+                    }
+                ]}
+
+                yAxis={[
+                    {
+                        tickLabelStyle: {
+                          fill: 'white' // Set the tick label color to white
+                        },
+                    
+                        
+                    }
+                ]}
+                // yAxis={[
+                //     {   
+                //         stroke: 'white',
+                //     }
+                // ]}
+                series={[
+                  { data: [data.ContinuityData.TotalHTMLElements, data.ContinuityData.TotalCSSElements, data.ContinuityData.USWDSTotal, data.ContinuityData.PageDepth, data.ContinuityData.USWDSPercent] }
+                ]}
+                colors={['#33ff33']}
+                width={isSmallScreen ? 400 : 800}
+                height={isSmallScreen ? 250 : 400}
+                sx={{
+                    '.MuiChartsAxis-line': {
+                      stroke: '#FFFFFF !important',
+                    },
+                    '.MuiChartsAxis-tick': {
+                        stroke: '#FFFFFF !important',
+                    },
+                    '.MuiChartsAxis-tickLabel': {
+                        fill: '#FFFFFF !important',
+                    }
+                  }}
+              />
+              
+            )}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
               <PieChart
+                highlightScope={{ faded: 'global', highlighted: 'item' }}
+                faded={{ innerRadius: 30, additionalRadius: -30, color: 'gray' }}
                 series={[
                   {
                     data: [
-                      { id: 0, value: avgFleschReadingEase, label: 'Reading Ease' },
-                      { id: 1, value: avgFleschGradeLevel, label: 'Grade Level' },
-                    ],
+                        { id: 0, value: avgFleschReadingEase, label: isSmallScreen ? 'RE' : 'Reading Ease'},
+                        { id: 1, value: avgFleschGradeLevel, label: isSmallScreen ? 'GL' : 'Grade Level' },
+                      ],
+                    highlightScope: { faded: 'global', highlighted: 'item' },
+      faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
                   },
                 ]}
-                colors={['#ee5d6c', '#ce4993']}
-                width={400}
-                height={200}
+                margin={isSmallScreen ? {left: 10} : {}}
+                slotProps={{
+                    legend: {
+                      labelStyle: {
+                        
+                        fill: 'white',
+                      },
+                    },
+                  }}
+                colors={['#33ff33', '#287a4a']}
+                width={isSmallScreen ? 200 : 400}
+                height={isSmallScreen ? 100 : 200}
               />
               <PieChart
                 series={[
@@ -521,11 +585,24 @@ visible={true}
                       { id: 1, value: data.AccessibilityData.ElementCounts.img, label: 'img' },
                       { id: 2, value: data.AccessibilityData.ElementCounts.button, label: 'button' },
                     ],
+                    highlightScope: { faded: 'global', highlighted: 'item' },
+      faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+                    
                   },
                 ]}
-                colors={['#eeaf61', '#fb9062','#EE5D6C']}
-                width={300}
-                height={200}
+                margin={isSmallScreen ? {} : { left: 100 }}
+                slotProps={{
+                    legend: {
+                      labelStyle: {
+                        
+                        fill: 'white',
+                      },
+                    },
+                  }}
+                colors={['#01471e', '#33ff33','#287a4a']}
+                width={isSmallScreen ? 200 : 400}
+                height={isSmallScreen ? 100 : 200}
+                
               />
             </div>
 
