@@ -250,7 +250,7 @@ const [avgFleschGradeLevel, setAvgFleschGradeLevel] = useState(0);
       {/* Uses Flex to center the items and display them as column */}
       <div className="flex items-center justify-center flex-col">
         <LeonComponent />
-        <div className="flex items-center justify-center text-white"> Sample URL: https://www.usa.gov </div>
+        {/* <div className="flex items-center justify-center text-white"> Sample URL: https://www.usa.gov </div> */}
         {/* Search bar gets loaded when the leon component is loaded*/}
         {leonLoaded && (
           <animated.div style={props}>
