@@ -324,7 +324,7 @@ visible={true}
                         </TableHeader>
                         {/* accessibilityData */}
                         <TableBody>
-                        {data && (
+                        {data && data.AccessibilityData ? (
                             <TableRow>
                             <TableCell className="font-medium">
                                 {data.AccessibilityData.URL}
@@ -340,6 +340,10 @@ visible={true}
                             <TableCell>
                                 {data.AccessibilityData.ElementCounts.button}
                             </TableCell>
+                            </TableRow>
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan="6">No data available</TableCell>
                             </TableRow>
                         )}
                         </TableBody>
@@ -363,7 +367,7 @@ visible={true}
                         </TableHeader>
                         {/* readability Data */}
                         <TableBody>
-                        {data &&
+                        {data && data.FleschData && data.FleschData.length !== 0 ? (
                             data.FleschData.map((item, index) => (
                             <TableRow key={index}>
                                 <TableCell>
@@ -381,7 +385,12 @@ visible={true}
                                 <TableCell>{item.FleschReadingEase}</TableCell>
                                 <TableCell>{item.FleschGradeLevel}</TableCell>
                               </TableRow>
-                          ))}
+                          ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan="7">No data available</TableCell>
+                            </TableRow>
+                        )}
                         </TableBody>
                       </Table>
                     </div>
@@ -419,7 +428,7 @@ visible={true}
                             </TableRow>
                           ) : (
                             <TableRow>
-                                <TableCell colSpan="7">No data available</TableCell>
+                                <TableCell colSpan="6">No data available</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -549,8 +558,10 @@ visible={true}
               />
               
             )}
+            {data.FleschData && data.AccessibilityData && data.ContinuityData ? ( 
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-              <PieChart
+            {data.FleschData && data.FleschData.length !== 0 && (
+            <PieChart
                 highlightScope={{ faded: 'global', highlighted: 'item' }}
                 faded={{ innerRadius: 30, additionalRadius: -30, color: 'gray' }}
                 series={[
@@ -575,7 +586,9 @@ visible={true}
                 colors={['#33ff33', '#287a4a']}
                 width={isSmallScreen ? 200 : 400}
                 height={isSmallScreen ? 100 : 200}
-              />
+              /> )}
+
+              {data.AccessibilityData && ( 
               <PieChart
                 series={[
                   {
@@ -603,7 +616,13 @@ visible={true}
                 height={isSmallScreen ? 100 : 200}
                 
               />
+              )}
             </div>
+            ) : (
+                <TableRow>
+                    <TableCell colSpan="6" style={{ color: 'white' }}>No data available</TableCell>
+                </TableRow>
+              )}
 
             {/* <D3CircleChart /> */}
           </div>
